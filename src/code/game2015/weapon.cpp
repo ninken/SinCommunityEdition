@@ -1034,7 +1034,10 @@ void Weapon::PickupWeapon(Event *ev)
 
    hasweapon = sen->HasItem(getClassname());
    giveammo = (sen->isClient() && ammotype.length() && startammo);
-
+   
+    //ninken ======================= 2015 mode...
+    if ((deathmatch->value && !DM_FLAG(DF_SINDM)) || (!deathmatch->value && !Vanilla->value))
+    {
    // if he already has the weapon, don't pick it up if he doesn't need the ammo
    if(hasweapon)
    {
@@ -1046,7 +1049,7 @@ void Weapon::PickupWeapon(Event *ev)
 
          current = sen->CurrentWeapon();
          if(!hasweapon && current && (current != weapon) && (current->AutoChange()) &&
-            ((current->Rank() < weapon->Rank()) || (!current->HasAmmo() && weapon->HasAmmo())))
+		 ((current->Rank() < weapon->Rank()) || (!current->HasAmmo() && weapon->HasAmmo())))
          {
             if(sen->IsOnBike() && sen->isClient())
             {
@@ -1061,7 +1064,7 @@ void Weapon::PickupWeapon(Event *ev)
             }
             else
             {
-               sen->NonAutoChangeWeapon(weapon);
+               sen->NonAutoChangeWeapon(weapon);		
             }
          }
       }
@@ -1133,7 +1136,43 @@ void Weapon::PickupWeapon(Event *ev)
       }
    }
    //###
+    }
+//ninken ======================= end 2015 mode...
 
+//ninken ======================= Sin mode...
+    if ((deathmatch->value && DM_FLAG(DF_SINDM)) || (!deathmatch->value && Vanilla->value))
+    {
+        if (hasweapon)
+        {
+            if (!giveammo)
+            {
+                return;
+            }
+            ammo = (Ammo*)sen->FindItem(ammotype.c_str());             // check if he needs the ammo
+            if (ammo && (ammo->Amount() >= ammo->MaxAmount()))
+            {
+                return; // doesn't need the ammo or the weapon, so return.
+            }
+        }
+        weapon = (Weapon*)ItemPickup(other);
+																	
+        if (!weapon)																						 
+        {
+            return; // Item Pickup failed, so don't give ammo either. 
+        }
+        flags &= ~FL_ROTATEDBOUNDS;
+        current = sen->CurrentWeapon();
+        //if (!DM_FLAG(DF_NO_WEAPON_CHANGE))
+        //{
+        if (!hasweapon && current && (current != weapon) && (current->AutoChange()) &&
+            ((current->Rank() < weapon->Rank()) || (!current->HasAmmo() && weapon->HasAmmo())))
+        {
+            sen->ChangeWeapon(weapon);
+        }
+        //}
+    }
+    //n Standard Sin Weapons End
+	
    // check if we should give him ammo
    if(giveammo)
       sen->giveItem(ammotype.c_str(), startammo);

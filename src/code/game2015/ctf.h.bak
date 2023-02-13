@@ -281,6 +281,7 @@ void     CTF_InitFlags(void);
 void     CTF_FragBonuses(Sentient *targ, Sentient *attacker);
 void     CTF_CheckHurtCarrier(Entity *targ, Entity *attacker);
 void     CTF_CalcScores(void);
+void     VidCheck(void); //Ninken was here
 
 
 extern Event EV_Flag_Reset;

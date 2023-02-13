@@ -1829,7 +1829,7 @@ void Com_sprintf(char *dest, int size, const char *fmt, ...)
 /*
 =====================================================================
 
-BSD STRING UTILITIES - haleyjd 20170610
+  BSD STRING UTILITIES - haleyjd 20170610
 
 =====================================================================
 */
@@ -2276,7 +2276,7 @@ void MatToQuat(float srcMatrix[3][3], float destQuat[4])
 
 void AnglesToMat(float ang[3], float mat[3][3])
 {
-   /*
+  /*
    AngleVectors(ang, mat[0], mat[1], mat[2]);
    VectorNegate(mat[1], mat[1]);
    */

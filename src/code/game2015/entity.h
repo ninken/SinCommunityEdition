@@ -560,6 +560,7 @@ public:
    void              VoiceSound(Event *ev);
    void              MachineSound(Event *ev);
    void              RadioSound(Event *ev);
+
    void              SpawnParticles(Event *ev);
    void              Kill(Event *ev);
    void              GroupModelEvent(Event *ev);

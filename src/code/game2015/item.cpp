@@ -134,6 +134,7 @@ Item::Item() : Trigger()
    // Using itemname as a temporary fix to this problem
    itemname = G_GetSpawnArg("itemname", "");
 
+
    if(G_GetSpawnArg("amount"))
    {
       amount = G_GetIntArg("amount");
@@ -300,6 +301,7 @@ Item *Item::ItemPickup(Entity *other)
    {
       return NULL;
    }
+
 
    sent = (Sentient *)other;
 

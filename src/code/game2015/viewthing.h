@@ -8,7 +8,7 @@
 // Copyright (C) 2020 by Night Dive Studios, Inc.
 // All rights reserved.
 //
-// See the license.txt file for conditions and terms of use for this code.s
+// See the license.txt file for conditions and terms of use for this code.
 //
 // DESCRIPTION:
 // Actor code for the viewthing. 

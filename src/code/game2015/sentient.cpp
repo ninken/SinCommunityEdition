@@ -27,6 +27,7 @@
 #include "actor.h"
 #include "hoverweap.h" //###
 #include "ctf.h"
+extern float ra_Timer; //RiEvEr
 
 CLASS_DECLARATION(Entity, Sentient, nullptr);
 
@@ -139,6 +140,11 @@ Sentient::Sentient() : Entity()
    // temporary shadow flag
    //
    edict->s.renderfx |= RF_XFLIP;
+   //RiEvEr
+   // Initialise raQueuePosition to indicate just joining the server
+   RA_SetQueuePosition( RA_NOT_IN_QUEUE);
+   arena = 0; // initialise to avoid problems
+   //R
 }
 
 Sentient::~Sentient()
@@ -224,6 +230,10 @@ void Sentient::EventGiveHealth(Event *ev)
 
 void Sentient::FireWeapon(Event *ev)
 {
+	//RiEvEr
+	if( (deathmatch->value == ROCKET_ARENA) && (level.time < ra_Timer) )
+		return;
+	//R
    if((currentWeapon) && currentWeapon->ReadyToFire() && currentWeapon->HasAmmo())
    {
       currentWeapon->Fire();
@@ -881,6 +891,21 @@ Item *Sentient::giveItem(const char * itemname, int amount, int icon_index)
    Item           *item;
    int             index;
 
+   if ((deathmatch->value && DM_FLAG(DF_SINDM)) || (!deathmatch->value && Vanilla->value)) //ninken Vanilla pickup mode.
+   {       
+   if (itemname == "ConcussionGun") return nullptr;
+   if (itemname == "PlasmaBow") return nullptr;
+   if (itemname == "Flamethrower") return nullptr;
+   if (itemname == "StingerPack") return nullptr;
+   if (itemname == "IP36") return nullptr;
+   if (itemname == "Flashlight") return nullptr;
+   if (itemname == "Goggles") return nullptr;
+   if (itemname == "ConcussionBattery") return nullptr;
+   if (itemname == "FlameFuel") return nullptr;
+   if (itemname == "IlludiumModules") return nullptr;
+   if (itemname == "Missiles") return nullptr;
+   }//N
+
    item = static_cast<Item *>(FindItem(itemname));
 
    if(item)
@@ -961,7 +986,9 @@ void Sentient::EventTakeItem(Event *ev)
 //### modified for hoverbike
 Weapon *Sentient::giveWeapon(const char *weaponname)
 {
-   assert(weaponname);
+
+
+   assert(weaponname);   
 
    if(!checkInheritance(&Weapon::ClassInfo, weaponname))
    {
@@ -969,22 +996,35 @@ Weapon *Sentient::giveWeapon(const char *weaponname)
       return nullptr;
    }
 
-   auto weapon = static_cast<Weapon *>(giveItem(weaponname, 1));
-
-   //### don't change weapons if on a hoverbike or if autoweapon switching is turned off
-   //if(!currentWeapon || (weapon->Rank() > currentWeapon->Rank()))
-   if(autoweaponswitch &&
-      (!currentWeapon || (weapon->Rank() > currentWeapon->Rank())) && 
-      !IsOnBike())
+   //ninken ======================= 2015 mode... 
+   if ((deathmatch->value && !DM_FLAG(DF_SINDM)) || (!deathmatch->value && !Vanilla->value))
    {
-      ChangeWeapon( weapon );
-   }
-   //###
-   else
-      NonAutoChangeWeapon(weapon);
-   //###
+       auto weapon = static_cast<Weapon*>(giveItem(weaponname, 1));
 
-   return weapon;
+       //### don't change weapons if on a hoverbike or if autoweapon switching is turned off
+       //if(!currentWeapon || (weapon->Rank() > currentWeapon->Rank()))
+       if (autoweaponswitch &&
+           (!currentWeapon || (weapon->Rank() > currentWeapon->Rank())) &&
+           !IsOnBike())
+       {
+           ChangeWeapon(weapon);
+       }
+       //###
+       else
+           NonAutoChangeWeapon(weapon);
+       //###
+
+       return weapon;
+   }
+
+   //ninken ======================= sin normal mode...
+       auto weapon = (Weapon*)giveItem(weaponname, 1);
+       
+       if (!currentWeapon || (weapon->Rank() > currentWeapon->Rank()))
+       {
+               ChangeWeapon(weapon);
+       }
+       return weapon;
 }
 
 Weapon *Sentient::useWeapon(const char *weaponname)
@@ -1355,7 +1395,11 @@ void Sentient::ArmorDamage(Event *ev)
    const char *location = "";
    float    unmodified_damage = 0;
 
-   if((takedamage == DAMAGE_NO) || (movetype == MOVETYPE_NOCLIP))
+   if((takedamage == DAMAGE_NO) || (movetype == MOVETYPE_NOCLIP)
+	   //RiEvEr
+	   // No damage during RA preparation period
+	   ||( (deathmatch->value == ROCKET_ARENA) && ( level.time < ra_Timer) ))
+	   //R
    {
       if(isClient())
       {
@@ -1370,6 +1414,11 @@ void Sentient::ArmorDamage(Event *ev)
          return;
       }
    }
+	 //RiEvEr
+	 // This should stop spectator deaths in RA
+	 if (IsSpectator() )
+		 return;
+	 //R
 
    damage       = ev->GetFloat(1);
    inflictor    = ev->GetEntity(2);
@@ -1569,7 +1618,7 @@ void Sentient::ArmorDamage(Event *ev)
    // Damage multiplier
    damage *= damage_mult;
 
-   if(ctf->value)
+   if(ctf->value || deathmatch->value) //ninken
    {
       // Check to see if the attacker had double
       if(attacker->isClient())
@@ -1932,7 +1981,7 @@ Item *Sentient::NextItem(Item *item)
    n = inventory.NumObjects();
 
    //### don't select runes or flags in CTF
-   if(ctf->value)
+   if(ctf->value || deathmatch->value) //ninken
    {
       for(i = 1; i <= n; i++)
       {
@@ -2597,7 +2646,192 @@ void         Sentient::SetBikeAnim(str bikeanim)     {}
 float        Sentient::WishedBikeYaw()               { return angles[YAW];   }
 float        Sentient::BikeAimPitch()                { return angles[PITCH]; }
 
+
+
+
 //### ====================================================
+//RiEvEr
+// Utility function for Rocket Arena mode (deathmatch == ROCKET_ARENA)
+void Sentient::RA_GiveItems( void )
+{
+	// Which weapons are enabled
+	cvar_t *A_Fists ;
+	cvar_t *A_RocketLauncher ;
+	cvar_t *A_Magnum;
+	cvar_t *A_SniperRifle ;
+	cvar_t *A_AssaultRifle ;
+	cvar_t *A_ChainGun ;
+	cvar_t *A_PulseRifle ;
+	cvar_t *A_Shotgun ;
+	cvar_t *A_SpearGun ;
+	cvar_t *A_SpiderMine ;
+	cvar_t *A_MutantHands ;
+	cvar_t *A_QuantumDestabilizer ;
+	// Which ammo is enabled
+	cvar_t *A_Bullet10mm;
+	cvar_t *A_Bullet50mm;
+	cvar_t *A_BulletPulse;
+	cvar_t *A_BulletSniper;
+	cvar_t *A_Rockets;
+	cvar_t *A_Spears;
+	cvar_t *A_ShotgunClip;
+	cvar_t *A_SpiderMines;
+	// Which armour is enabled
+	cvar_t *A_RiotHelmet;
+	cvar_t *A_FlakJacket;
+	cvar_t *A_FlakPants;
+
+    //Ninken Added 2015 support
+    cvar_t* A_SpriteGun;
+    cvar_t* A_DualMagnum;
+    cvar_t* A_MissileLauncher;
+    cvar_t* A_PlasmaBow;
+    cvar_t* A_ConcussionGun;
+    cvar_t* A_StingerPack;
+    cvar_t* A_FlameThrower;
+    cvar_t* A_IP36;
+    cvar_t* A_Missiles;
+    cvar_t* A_IlludiumModules;
+    cvar_t* A_ConcussionBattery;
+    cvar_t* A_FlameFuel;
+    //N
+
+	// Added checks to see if item enabled in config file
+	// Give weapons to players?
+	A_Fists=gi.cvar("A_Fists","1",CVAR_SERVERINFO);
+	A_RocketLauncher=gi.cvar("A_RocketLauncher","1",CVAR_SERVERINFO);
+	A_Magnum=gi.cvar("A_Magnum","1",CVAR_SERVERINFO);
+	A_SniperRifle=gi.cvar("A_SniperRifle","1",CVAR_SERVERINFO) ;
+	A_AssaultRifle=gi.cvar("A_AssaultRifle","1",CVAR_SERVERINFO) ;
+	A_ChainGun=gi.cvar("A_ChainGun","1",CVAR_SERVERINFO) ;
+	A_PulseRifle=gi.cvar("A_PulseRifle","1",CVAR_SERVERINFO) ;
+	A_Shotgun=gi.cvar("A_Shotgun","1",CVAR_SERVERINFO) ;
+	A_SpearGun=gi.cvar("A_SpearGun","1",CVAR_SERVERINFO) ;
+	A_SpiderMine=gi.cvar("A_SpiderMine","1",CVAR_SERVERINFO) ;
+	A_MutantHands=gi.cvar("A_MutantHands","1",CVAR_SERVERINFO) ;
+	A_QuantumDestabilizer=gi.cvar("A_QuantumDestabilizer","1",CVAR_SERVERINFO) ;
+	// Give ammo to players?
+	// Currently just a big number :)
+	A_Bullet10mm=gi.cvar("A_Bullet10mm","500",CVAR_SERVERINFO);
+	A_Bullet50mm=gi.cvar("A_Bullet50mm","500",CVAR_SERVERINFO);
+	A_BulletPulse=gi.cvar("A_BulletPulse","500",CVAR_SERVERINFO);
+	A_BulletSniper=gi.cvar("A_BulletSniper","500",CVAR_SERVERINFO);
+	A_Rockets=gi.cvar("A_Rockets","500",CVAR_SERVERINFO);
+	A_Spears=gi.cvar("A_Spears","500",CVAR_SERVERINFO);
+	A_ShotgunClip=gi.cvar("A_ShotgunClip","500",CVAR_SERVERINFO);
+	A_SpiderMines=gi.cvar("A_SpiderMines","500",CVAR_SERVERINFO);
+	// Give armour to players?
+	A_RiotHelmet=gi.cvar("A_RiotHelmet","100",CVAR_SERVERINFO);
+	A_FlakJacket=gi.cvar("A_FlakJacket","100",CVAR_SERVERINFO);
+	A_FlakPants=gi.cvar("A_FlakPants","100",CVAR_SERVERINFO);
+
+    //Ninken - 2015 Rocket Arena Items added.
+    A_SpriteGun = gi.cvar("A_SpriteGun", "1", CVAR_SERVERINFO);
+    A_DualMagnum = gi.cvar("A_DualMagnum", "1", CVAR_SERVERINFO);
+    A_MissileLauncher = gi.cvar("A_MissileLauncher", "1", CVAR_SERVERINFO);
+    A_PlasmaBow = gi.cvar("A_PlasmaBow", "1", CVAR_SERVERINFO);
+    A_ConcussionGun = gi.cvar("A_ConcussionGun", "1", CVAR_SERVERINFO);
+    A_StingerPack = gi.cvar("A_StingerPack", "1", CVAR_SERVERINFO);
+    A_FlameThrower = gi.cvar("A_FlameThrower", "1", CVAR_SERVERINFO);
+    A_IP36 = gi.cvar("A_IP36", "1", CVAR_SERVERINFO);
+    A_Missiles = gi.cvar("A_Missiles", "500", CVAR_SERVERINFO);
+    A_IlludiumModules = gi.cvar("A_IlludiumModules", "500", CVAR_SERVERINFO);
+    A_ConcussionBattery = gi.cvar("A_ConcussionBattery", "500", CVAR_SERVERINFO);
+    A_FlameFuel = gi.cvar("A_FlameFuel", "500", CVAR_SERVERINFO);
+    //N
+
+	// Give weapons to players
+	if(A_Fists->value)
+		giveWeapon( "Fists" );
+	if(A_RocketLauncher->value)
+		giveWeapon( "RocketLauncher" );
+	if(A_Magnum->value)
+		giveWeapon( "Magnum" );
+	if(A_SniperRifle->value)
+		giveWeapon( "SniperRifle" );
+	if(A_AssaultRifle->value)
+		giveWeapon( "AssaultRifle" );
+	if(A_ChainGun->value)
+		giveWeapon( "ChainGun" );
+	if(A_PulseRifle->value)
+		giveWeapon( "PulseRifle" );
+	if(A_Shotgun->value)
+		giveWeapon( "Shotgun" );
+	if(A_SpearGun->value)
+		giveWeapon( "SpearGun" );
+	if(A_SpiderMine->value)
+		giveWeapon( "SpiderMine" );
+	if(A_MutantHands->value)
+		giveWeapon( "MutantHands" );
+	if(A_QuantumDestabilizer->value)
+		giveWeapon( "QuantumDestabilizer" );
+// Ninken Give 2015
+    if (A_SpriteGun->value)
+        giveWeapon("SpriteGun");
+    if (A_DualMagnum->value)
+        giveWeapon("DualMagnum");
+    if (A_MissileLauncher->value)
+        giveWeapon("MissileLauncher");
+    if (A_PlasmaBow->value)
+        giveWeapon("PlasmaBow");
+    if (A_ConcussionGun->value)
+        giveWeapon("ConcussionGun");
+    if (A_StingerPack->value)
+        giveWeapon("StingerPack");
+    if (A_FlameThrower->value)
+        giveWeapon("FlameThrower");
+    if (A_IP36->value)
+        giveWeapon("IP36");
+//N
+		// Give ammo to players
+	if(A_Bullet10mm->value)
+		giveItem( "Bullet10mm",A_Bullet10mm->value);
+	if(A_Bullet50mm->value)
+		giveItem( "Bullet50mm", A_Bullet50mm->value );
+	if(A_BulletPulse->value)
+		giveItem( "BulletPulse", A_BulletPulse->value );
+	if(A_BulletSniper->value)
+		giveItem( "BulletSniper", A_BulletSniper->value );
+	if(A_Rockets->value)
+		giveItem( "Rockets", A_Rockets->value );
+	if(A_Spears->value)
+		giveItem( "Spears", A_Spears->value );
+	if(A_ShotgunClip->value)
+		giveItem( "ShotgunClip", A_ShotgunClip->value );
+	if(A_SpiderMines->value)
+		giveItem( "SpiderMines", A_SpiderMines->value );
+    //Ninken 2015 Give Ammo 
+    if (A_Missiles->value)
+        giveItem("Missiles", A_Missiles->value);
+    if (A_IlludiumModules->value)
+        giveItem("IlludiumModules", A_IlludiumModules->value);
+    if (A_ConcussionBattery->value)
+        giveItem("ConcussionBattery", A_ConcussionBattery->value);
+    if (A_FlameFuel->value)
+        giveItem("FlameFuel", A_FlameFuel->value);
+    //N
+		// Give armour to players
+	if(A_RiotHelmet->value)
+		giveItem( "RiotHelmet", A_RiotHelmet->value);
+	if(A_FlakJacket->value)
+		giveItem( "FlakJacket", A_FlakJacket->value);
+	if(A_FlakPants->value)
+		giveItem( "FlakPants", A_FlakPants->value);
+}
+
+// Queue management functions
+void Sentient::RA_SetQueuePosition( int number)
+{
+	raQueuePosition = number;
+}
+
+
+int Sentient::RA_GetQueuePosition( void )
+{
+	return (raQueuePosition);
+}
+
+//R
 
 // EOF
 

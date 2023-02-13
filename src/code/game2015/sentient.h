@@ -113,6 +113,11 @@ public:
    int               weaponoverride;
    //###
 
+	  //RiEvEr
+	  int	raQueuePosition; // used to hold current position in RA deathmatch Queue
+	  int	arena; // current arena number
+	  //R
+
    CLASS_PROTOTYPE(Sentient);
 
    Sentient();
@@ -176,6 +181,13 @@ public:
    virtual qboolean  DoGib(int meansofdeath, Entity *inflictor);
    virtual void      SetDropWeapon(Event *ev);
    virtual void      DropWeaponNowEvent(Event *ev);
+	  //RiEvER 
+	  virtual void		Respawn( Event *ev ) { }; // Dummy virtual function for RA
+	  virtual void		RA_GiveItems( void );
+	  virtual void		RA_SetQueuePosition( int number);
+	  virtual int		RA_GetQueuePosition( void );
+	  virtual qboolean	IsSpectator(void) { return (false); };
+	  //R
 
    //###
    virtual void      HurtFlame(Event *ev);                // function called to stop an entity's burning

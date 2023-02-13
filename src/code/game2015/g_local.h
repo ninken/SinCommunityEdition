@@ -16,6 +16,7 @@
 
 #pragma once
 
+
 #if 0
 #define EXPORT_FROM_DLL __declspec( dllexport )
 #define EXPORT_TEMPLATE
@@ -56,9 +57,12 @@
 #define CENTER_HANDED 2
 
 //### added deathmatch modes
-#define DEATHMATCH_REGULAR    1
+#define SINGLE_PLAYER         0 // Single Player 
+#define DEATHMATCH_REGULAR    1 // Death Match
 #define DEATHMATCH_MFD        2 // Marked for Death
 #define DEATHMATCH_MOB        3 // Linch Mob
+#define LAST_MAN_STANDING     5	// Last Man Standing
+#define ROCKET_ARENA		  6 // Rocket Arena
 
 #define MFD_INFORMERMODEL  "pl_blade.def"
 #define MFD_INFORMERSKIN   "blade_base"
@@ -69,6 +73,17 @@
 #define random()  ((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom() (2.0 * (random() - 0.5))
 
+//RiEvEr/Ninken
+struct	mapinfo{
+	int			mapid; // number of map in file
+	str			name;
+}; // used to store map information (expandable)
+
+#define	MAXMAPS	64
+
+#define RA_NOT_IN_QUEUE	255 // Set in Sentient.raQueuePosition on entry to game or upon end of a match
+
+//R
 // predefine Entity so that we can add it to edict_t without any errors
 class Entity;
 
@@ -118,6 +133,7 @@ typedef struct
    float       ctf_lastreturnedflag;   // Last time flag was returned
    float       ctf_idtime;             // Last time a player id was made
    int         ctf_spawnrune;          //### player's selected spawn rune
+   int         killrows;               //Ninken Number of kills in a row
 } client_respawn_t;
 
 // this structure is cleared on each PutClientInServer(),
@@ -191,6 +207,7 @@ typedef struct ghost_s
    float        last_lap_time; // time for last lap
    int          ctf_team;      // CTF team number
    int          ctf_spawnrune; // player's selected spawn rune
+   int          killrows;      // Ninken Number of kills in a row.
 } ghost_t;
 
 // these are the functions used for ghost storing and restoration

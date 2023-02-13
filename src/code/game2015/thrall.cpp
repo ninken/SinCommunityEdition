@@ -719,7 +719,7 @@ EXPORT_FROM_DLL void ThrallPulse::Explode(Event *ev)
       return;
    }
 
-   if(ctf->value)
+   if ((deathmatch->value && DM_FLAG(DF_THRALL) == 1) || ctf->value) // Ninken
       damg = 150;
    else
       damg = 160 + (int)G_Random(50);
@@ -739,7 +739,7 @@ EXPORT_FROM_DLL void ThrallPulse::Explode(Event *ev)
    FlashPlayers(v, 1, 1, 1, 0.5, 768);
 
 #if 0
-   if(ctf->value)
+   if ((deathmatch->value && DM_FLAG(DF_THRALL) == 1) || ctf->value) // ninken
    {
       Entity *stuff;
 

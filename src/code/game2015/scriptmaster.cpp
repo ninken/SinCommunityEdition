@@ -2839,6 +2839,8 @@ void ScriptThread::MapName(Event * ev)
    gi.configstring(CS_NAME, ev->GetString(1));
 }
 
+
+
 void ScriptThread::EndGame(Event * ev)
 {
 #ifdef SIN_ARCADE

@@ -15,6 +15,7 @@
 
 #pragma once 
 
+
 #include "g_local.h"
 #include "class.h"
 #include "container.h"
@@ -138,5 +139,6 @@ inline EXPORT_FROM_DLL void Path::Unarchive(Archiver &arc)
 template class EXPORT_FROM_DLL SafePtr<Path>;
 #endif
 typedef SafePtr<Path> PathPtr;
+
 
 // EOF

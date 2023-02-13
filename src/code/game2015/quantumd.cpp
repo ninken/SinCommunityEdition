@@ -184,6 +184,7 @@ ResponseDef Ion::Responses[] =
    { nullptr, nullptr }
 };
 
+
 qboolean Ion::CanSee(Entity *ent)
 {
    Vector start;
@@ -438,8 +439,11 @@ QuantumDestabilizer::QuantumDestabilizer() : BulletWeapon()
    PostEvent(EV_Remove, 0);
    return;
 #endif
-   SetModels("quantum.def", "view_quantum.def");
-   modelIndex("qp_burst.def");
+   //Ninken - CTF fix for Quantum Gun, it's unstable even in code :p
+   SetModels("quantum.def", "view_quantum_sin.def");
+   modelIndex("qp_burst_sin.def");
+   //N
+
    modelIndex("sprites/qp_exhaust.spr");
    modelIndex("sprites/qp_sphere.spr");
    modelIndex("sprites/shockwave2.spr");
@@ -487,7 +491,7 @@ void QuantumDestabilizer::Destruct(Event *ev)
 {
    Entity *ent;
 
-   if(ctf->value)
+   if(ctf->value )
    {
       auto event = new Event(EV_Sentient_ReleaseAttack);
       event->AddFloat(level.time - owner->firedowntime);

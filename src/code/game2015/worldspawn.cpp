@@ -32,6 +32,11 @@
 //###
 
 extern void CreateMissionComputer();
+//RIEVER
+extern	void	ReadMapInfoFile( void );
+extern	int	mapinfocounter;
+//R
+//Ninken Custom Map list for menu
 
 WorldPtr  world;
 
@@ -184,6 +189,10 @@ World::World() : Entity()
    {
       gi.configstring(CS_NAME, text);
       level.level_name = text;
+    if (deathmatch->value) //ninken screenshot based on level file name. 
+      {
+      gi.cvar_set("scr_shotname", level.mapname.c_str()); 
+    }
    }
    else
    {
@@ -278,13 +287,20 @@ World::World() : Entity()
    // reset the earthquake
    //
    level.earthquake = 0;
+//RiEvEr
+   //if(deathmatch->value)
+   if (deathmatch->value == ROCKET_ARENA)
+	{
+		if (!mapinfocounter)
+			ReadMapInfoFile(); // gets the map list info
+	}
 }
 
 TargetList *World::GetTargetList(str &targetname)
 {
    TargetList *targetlist;
 
-   for(int i = 1; i <= targetList.NumObjects(); i++)
+  for(int i = 1; i <= targetList.NumObjects(); i++)
    {
       targetlist = targetList.ObjectAt(i);
       if(targetname == targetlist->targetname)

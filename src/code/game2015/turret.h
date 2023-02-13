@@ -29,7 +29,7 @@ protected:
    int            base           = 0;
    int            enemy          = 0;
    float          lastSightTime  = 0;
-   qboolean       active         = false;        
+   qboolean       active         = false;
    qboolean       attacking      = false;
    qboolean       turning        = false;
    float          neworientation;

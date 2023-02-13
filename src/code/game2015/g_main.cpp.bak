@@ -146,7 +146,7 @@ float     reset_timeofs;
 
 //Ninken Additional DM Options
 cvar_t   *Vanilla;
-cvar_t *adr8;  // used for announcer, can't save in cfg with new cvars
+cvar_t *adr8;  // used for announcer, can't save in cfg with new vars
 //N
 
 //RiEvEr

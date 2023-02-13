@@ -111,7 +111,10 @@ extern   float     reset_timeofs;
 
 //Ninken Additional DM Options
 extern   cvar_t   *Vanilla;
-extern   cvar_t   *adr8; // Using unused adr8, new cvar are not saving in user cfg.
+//extern   cvar_t   *Vintensity;
+//extern   cvar_t	  *currentintensity;
+//extern   cvar_t   *announcer;
+extern   cvar_t   *adr8;
 //N
 
 extern   usercmd_t *current_ucmd;

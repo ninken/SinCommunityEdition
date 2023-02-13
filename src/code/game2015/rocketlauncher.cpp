@@ -156,7 +156,7 @@ ResponseDef RocketLauncher::Responses[] =
 
 RocketLauncher::RocketLauncher() : Weapon()
 {
-   if(ctf->value) //###
+  if(ctf->value || (deathmatch->value && DM_FLAG(DF_THRALL) == 1)) //Ninken
       SetModels("rlaunch.def", "view_rlaunch_ctf.def");
    else
       SetModels("rlaunch.def", "view_rlaunch.def");
@@ -181,7 +181,7 @@ RocketLauncher::RocketLauncher() : Weapon()
    }
    //###
 
-   if(ctf->value)
+   if(ctf->value || (deathmatch->value && DM_FLAG(DF_THRALL) == 1)) //Ninken
    {
       // CTF rocketlauncher has alternate fire mode
       modelIndex("sprites/thrallpulse.spr");
@@ -222,8 +222,12 @@ void RocketLauncher::Shoot(Event *ev)
 }
 
 //### for guided missile
-void RocketLauncher::SecondaryUse(Event *ev)
+void RocketLauncher::SecondaryUse(Event* ev)
 {
+    // Ninken No Secondary use
+    if (Vanilla->value) return; //ninken 
+    if (ctf->value) return; //ninken 
+    if (deathmatch->value && DM_FLAG(DF_SINDM)) return;//ninken
    // make sure he has it, but only in deathmatch
    if(!owner->HasItem("MissileLauncher") && deathmatch->value)
       owner->giveWeapon("MissileLauncher");

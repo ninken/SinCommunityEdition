@@ -96,7 +96,7 @@ ConcussionGun::ConcussionGun() : Weapon()
 void ConcussionGun::SecondaryUse(Event *ev)
 {
    // switch to the fists
-   owner->useWeapon("Fists");
+    owner->useWeapon("Fists");
 }
 
 void ConcussionGun::BatteryRegen(Event *ev)

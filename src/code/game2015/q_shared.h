@@ -1017,17 +1017,24 @@ typedef enum
 #define DF_INFINITE_AMMO      (1<<14)
 #define DF_FIXED_FOV          (1<<15)
 #define DF_NO_DROP_WEAPONS    (1<<16)
-#define DF_NO_WEAPON_CHANGE   (1<<17)
+//#define DF_NO_WEAPON_CHANGE   (1<<17) Looks like 2015 took this.
 
 // 2015 code
 #define DF_BBOX_BULLETS    (1<<17)
 #define DF_AUTO_INFORMER   (1<<18)
 #define DF_INFORMER_LOCK   (1<<19)
-#define DF_MIDNIGHT        (1<<20) // wasn't able to get implimented
+//#define DF_MIDNIGHT        (1<<20) // 2015 wasn't able to get implimented
+#define DF_SINDM           (1<<20) // Ninken Taking unimplimented FLAG
 #define DF_FLASHLIGHT      (1<<21)
 #define DF_FLASHLIGHTON    (1<<22)
 #define DF_GOGGLES         (1<<23)
 #define DF_GOGGLESON       (1<<24)
+// Ninken Code
+#define DF_GRAPPLE         (1<<25)
+#define DF_THRALL          (1<<27)
+#define DF_ARENAVOICE      (1<<28)
+#define DF_SNIPERGIB       (1<<29)
+
 
 /*
 ==========================================================

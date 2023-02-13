@@ -136,7 +136,7 @@ EXPORT_FROM_DLL void Grenade::Setup(Entity *owner, Vector pos, Vector forward, V
    ev = new Event(EV_Grenade_Explode);
    ev->AddEntity(world);
 
-   if(ctf->value)
+   if(ctf->value || deathmatch->value) //ninken
       PostEvent(ev, 0.9);
    else
       PostEvent(ev, 2.5 + G_Random(1.0));
@@ -183,7 +183,7 @@ ChainGun::ChainGun() : BulletWeapon()
    modelIndex("sprites/tracer.spr");
    modelIndex("hvshell.def");
 
-   if(ctf->value)
+   if(ctf->value || deathmatch->value ) //ninken
       alternate_fire = true;
 }
 
@@ -210,7 +210,7 @@ void ChainGun::Shoot(Event *ev)
       grenade->Setup(owner, pos, forward, up, right);
       NextAttack(0.8);
 
-      if(ctf->value)
+      if(ctf->value || deathmatch->value) //ninken
          SetPrimaryMode();
    }
 }

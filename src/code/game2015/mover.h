@@ -38,7 +38,7 @@ public:
    void              MoveTo(Vector tdest, Vector angdest, float tspeed, Event &event);
    void              LinearInterpolate(Vector tdest, Vector angdest, float time, Event &event);
    virtual void      Archive(Archiver &arc)   override;
-   virtual void      Unarchive(Archiver &arc) override;;
+   virtual void      Unarchive(Archiver &arc) override;
 };
 
 inline EXPORT_FROM_DLL void Mover::Archive(Archiver &arc)

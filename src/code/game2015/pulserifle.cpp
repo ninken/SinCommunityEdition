@@ -201,7 +201,7 @@ PulseRifle::PulseRifle() : BulletWeapon()
 #endif
 
    //###
-   if(ctf->value)
+   if(ctf->value || !deathmatch->value) //ninken
       SetModels("pulse2.def", "view_pulse2_ctf.def");
    else
    //###
@@ -396,7 +396,7 @@ void PulseRifle::Shoot(Event *ev)
       angles = dir.toAngles();
       setAngles(angles);
 
-      if(ctf->value)
+      if(ctf->value || !deathmatch->value) //ninken
          damg = 30;
       else
          damg = 15;

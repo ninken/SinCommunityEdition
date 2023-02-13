@@ -34,7 +34,7 @@ public:
    str(const str &string, int start, int end);
    ~str();
 
-   int         length() const { return len; }
+   int length() const { return len; }
 
    const char *c_str() const;
 

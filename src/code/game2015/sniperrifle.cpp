@@ -41,7 +41,7 @@ SniperRifle::SniperRifle() : BulletWeapon()
       SetModels( "sniperrifle.def", "view_srifle_ctf.def" );
    else
    //###
-      SetModels("sniperrifle.def", "view_srifle.def");
+   SetModels("sniperrifle.def", "view_srifle.def");
    SetAmmo("BulletSniper", 1, 5);
    modelIndex("sniper_ammo.def");
    SetRank(100, 0);
@@ -65,19 +65,19 @@ void SniperRifle::Shoot(Event *ev)
       return;
    }
 
-   if(ctf->value)
+   if(ctf->value || (deathmatch->value && DM_FLAG(DF_SNIPERGIB)) == 1)//ninken
    {
       // CTF - kill the target
       FireBullets(1, vec_zero, 10000, 10000, DAMAGE_BULLET | DAMAGE_NO_ARMOR, MOD_SNIPER, false);
    }
-   else if(deathmatch->value)
+   else if(deathmatch->value  && DM_FLAG(DF_SNIPERGIB) == 0) //ninken
    {
-      FireBullets(1, vec_zero, 105, 135, DAMAGE_BULLET | DAMAGE_NO_ARMOR, MOD_SNIPER, false);
+       FireBullets(1, vec_zero, 105, 135, DAMAGE_BULLET | DAMAGE_NO_ARMOR, MOD_SNIPER, false);
    }
-   else
-   {
-      FireBullets(1, vec_zero, 105, 135, DAMAGE_BULLET, MOD_SNIPER, false);
-   }
+	else 
+	{
+ 	FireBullets(1, vec_zero, 105, 135, DAMAGE_BULLET, MOD_SNIPER, false);
+	}
 
    NextAttack(1.5);
 }

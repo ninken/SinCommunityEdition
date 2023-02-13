@@ -53,6 +53,7 @@ extern Event EV_Player_HideStats;
 extern Event EV_Player_SetFlashColor;
 extern Event EV_Player_ClearFlashColor;
 extern Event EV_Player_Respawn;
+extern Event EV_Player_RAQueuePosition; //RiEvEr
 //###
 extern Event EV_Player_WeaponSwitch;
 extern Event EV_Player_WeaponOverride;
@@ -202,6 +203,8 @@ protected:
    qboolean          drawstats;
 
    float             lastTauntTime;
+   float             lastKillTime; //ninken todo
+   float             lastKilled;//ninken todo
 
    // variable to see if we checked the dead camera
    qboolean          checked_dead_camera;
@@ -243,6 +246,11 @@ public:
 
    Player();
    virtual ~Player();
+		//RiEvEr
+		void			RAQueue(Event *ev);
+		//qboolean		IsSpectator( void );
+		//R
+
 
    virtual void      Init();
    virtual void      RestorePersistantData(SpawnArgGroup &group);
@@ -378,6 +386,7 @@ public:
    void              WhatIs(Event *ev);
    void              ActorInfo(Event *ev);
    virtual void      Taunt(Event *ev);
+   virtual void      LastKilled(Event* ev);  //Ninken Todo
    str               AnimPrefixForPlayer();
 
    virtual void      DrawOverlay(Event *ev);
@@ -625,6 +634,7 @@ inline EXPORT_FROM_DLL void Player::Archive(Archiver &arc)
    arc.WriteBoolean(drawstats);
 
    arc.WriteFloat(lastTauntTime);
+   arc.WriteFloat(lastKillTime); //Ninken Todo
    arc.WriteBoolean(checked_dead_camera);
 
    arc.WriteBoolean(falling);
@@ -781,6 +791,7 @@ inline EXPORT_FROM_DLL void Player::Unarchive(Archiver &arc)
    arc.ReadBoolean(&drawstats);
 
    arc.ReadFloat(&lastTauntTime);
+   arc.ReadFloat(&lastKillTime); //Ninken Todo
    arc.ReadBoolean(&checked_dead_camera);
 
    arc.ReadBoolean(&falling);

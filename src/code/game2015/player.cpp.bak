@@ -2600,7 +2600,7 @@ EXPORT_FROM_DLL void Player::CheckButtons(void)
                 usedown = true;
                 CTF_ExtendGrapple();
             }
-            if (!ctf->value && deathmatch->value && (DM_FLAG(DF_GRAPPLE)) && !IsOnBike()) //ninken
+            if (!ctf->value && deathmatch->value && (DM_FLAG(DF_GRAPPLE))) //ninken
             {
                 usedown = true;
                 CTF_ExtendGrapple();
